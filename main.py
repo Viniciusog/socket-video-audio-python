@@ -1,5 +1,3 @@
-# Subscribers are created with ZMQ.SUB socket types.
-# A zmq subscriber can connect to many publishers.
 import sys
 import zmq
 import time
@@ -23,35 +21,21 @@ def get_local_ip():
     local_ip = s.getsockname()[0]
     return local_ip
 
-# criar função para pub e função para sub
-# cada uma dessas funções será executada em uma thread diferente (para ser multithread)
-def pub_function(port_pub, zmq_context):
+def pub_text(port_pub, zmq_context):
     socket = zmq_context.socket(zmq.PUB)
     print("Conectando pub_text na porta %s\n" % port_pub)
     socket.bind("tcp://*:%s" % port_pub)
-
-    """ while True:
-        topic = random.randrange(9999,10005)
-        topic = "*"
-        messagedata = random.randrange(1,215) - 80
-        print("%s %d" % (topic, messagedata))
-        socket.send(b"%s %d" % (topic.encode(), messagedata))
-        time.sleep(1) """
     
     topic = "*" + get_local_ip()
     while True:
         message = input()
         socket.send(b"%s %s" % (topic.encode(), message.encode()))
 
-def sub_function(port_pub, ips_to_connect, zmq_context):
+def sub_text(ips_to_connect, zmq_context):
     socket = zmq_context.socket(zmq.SUB)
     for ip in ips_to_connect:
         socket.connect("tcp://%s:%s" % (ip, int(text_port)))
         socket.subscribe("*" + ip)
-    # Aqui estamos nos inscrevendo em todos os conteúdos que tiverem a nossa porta
-    # pois assim, saberemos que a mensagem é para a gente
-    #socket.subscribe(str(port_pub))
-    # Aqui estamos nos inscrevendo no conteúdo que começar com *
     
     while True:
         string = socket.recv()
@@ -82,7 +66,7 @@ def pub_video(port_pub, zmq_context):
     camera.release()
     cv2.destroyAllWindows()
 
-def sub_video(port_pub, ips_to_connect, zmq_context):
+def sub_video(ips_to_connect, zmq_context):
     socket = zmq_context.socket(zmq.SUB)
     topics_to_subscribe = []
 
@@ -121,19 +105,20 @@ nodes = strArgv.split("-node ")
 for i in range(1, len(nodes)-1):
     nodes[i] = nodes[i].strip()
 
-type_of_execution = nodes[0] # se tiver -sub, os pubs não vão executar
+# Se tiver -sub, os pubs não vão executar
+type_of_execution = nodes[0] 
 print("Tipo de execução: %s:" % (type_of_execution))
 nodes = nodes[1:]
 print(nodes)
 
-# Socket to talk to server
+# Criando contexto
 context = zmq.Context()
 
 if type_of_execution != "-sub ":
-    thread_pub = threading.Thread(target=pub_function, args=(text_port, context))
+    thread_pub = threading.Thread(target=pub_text, args=(text_port, context))
     thread_pub.start()
 
-thread_sub = threading.Thread(target=sub_function, args=(text_port, nodes, context))
+thread_sub = threading.Thread(target=sub_text, args=(nodes, context))
 thread_sub.start()
 
 if type_of_execution != "-sub ":
