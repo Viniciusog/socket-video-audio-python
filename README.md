@@ -1,6 +1,6 @@
 # socket-video-python
 
-As portas e texto, vídeo e áudio foram padronizadas. <br>
+As portas de texto, vídeo e áudio foram padronizadas. <br>
 Porta de texto = 6000. <br>
 Porta de vídeo = 6001. <br>
 Porta de áudio = 6002. <br>
