@@ -86,66 +86,58 @@ def sub_video(ips_to_connect, zmq_context):
             if cv2.waitKey(1) & 0xFF == ord('q'):
                 break
         
-
 def pub_audio(port_pub, zmq_context):
     socket = zmq_context.socket(zmq.PUB)
-    print("Conectando áudio na porta: %d" % (port_pub))
     socket.bind("tcp://*:%s" % port_pub)
-    print("A")
-
-    topic = "*" + get_local_ip()
-    print("B")
 
     my_audio = pyaudio.PyAudio()
-    # 44100 Hz é a taxa padrão de áudio
     sample_rate = 44100
     format = pyaudio.paInt16
-    channels = 2
-    print("C")
+    channels = 1
+    frames_per_buffer = 1024
 
-    stream = my_audio.open(format=format, channels=channels, rate=sample_rate, output=True, input=True, frames_per_buffer=1024)
-    
-    print("D")
-    while True:
-        data = stream.read(1024)
-        to_send = b"%s %s" % (topic.encode(), data)        
-        # print(to_send)
+    stream = my_audio.open(format=format, channels=channels, rate=sample_rate, input=True, frames_per_buffer=frames_per_buffer)
+
+    print("Enviando áudio...")
+    while True: 
+        data = stream.read(frames_per_buffer)
+        to_send = b"%s %s" % (b"*", data)
         socket.send(to_send)
-        # socket.send_multipart([b"%s" % topic.encode(), data])
 
 def sub_audio(ips_to_connect, zmq_context):
-    print("A1")
     socket = zmq_context.socket(zmq.SUB)
+    """ for ip in ips_to_connect: """
+    for ip in ips_to_connect:
+        print("Conectando em %s" % ip)
+        socket.connect("tcp://%s:%s" % (ip, audio_port))
+    
+    socket.subscribe("*") 
 
     my_audio = pyaudio.PyAudio()
-    # 44100 Hz é a taxa padrão de áudio
     sample_rate = 44100
     format = pyaudio.paInt16
-    channels = 2
-    print("A2")
+    channels = 1
+    frames_per_buffer = 1024
 
-    stream = my_audio.open(format=format, channels=channels, rate=sample_rate, output=True, frames_per_buffer=1024)
-    print("A3")
-    for ip in ips_to_connect:
-        socket.connect("tcp://%s:%d" % (ip, audio_port))        
-        topic = "*" + ip
-        print("Se inscrevendo no tópico de áudio: %s" % (topic))
-        socket.subscribe(topic) 
+    stream = my_audio.open(format=format, channels=channels, rate=sample_rate, output=True, frames_per_buffer=frames_per_buffer)
 
-    print("A4")
-
+    print("Recebendo áudio...")
     cont = 0
     while True:
-        print("A5")
         string = socket.recv()
-        print("A5-2")
+        if cont == 0:
+            print(string)
+
+        topic, data = string.split(b' ', 1)
 
         if cont == 0:
-            print("string")
-            print(string)
-        
-        topic, audio_data = string.split(b" ", 1)
-        stream.write(audio_data)
+            print("topic")
+            print(topic)
+            print("data")
+            print(data)
+            cont += 1
+
+        stream.write(data)
 
 strArgv = ""
 for element in sys.argv[1:]:
@@ -170,33 +162,26 @@ print(nodes)
 context = zmq.Context()
 
 thread_pub = threading.Thread(target=pub_text, args=(text_port, context))
-if type_of_execution != "-sub ":    
-    thread_pub.start()
+thread_pub.start()
 
 thread_sub = threading.Thread(target=sub_text, args=(nodes, context))
-if type_of_execution != "-pub ":    
-    thread_sub.start()
+thread_sub.start()
 
-thread__pub_video = threading.Thread(target=pub_video, args=(video_port, context))
-if type_of_execution != "-sub ":
-    thread__pub_video.start()
+thread_pub_video = threading.Thread(target=pub_video, args=(video_port, context))
+thread_pub_video.start()
 
 thread_sub_video = threading.Thread(target=sub_video, args=(nodes, context))
-if type_of_execution != "-pub ":    
-    thread_sub_video.start()
+thread_sub_video.start()
 
 thread_pub_audio = threading.Thread(target=pub_audio, args=(audio_port, context))
-if type_of_execution != "-sub ":
-    thread_pub_audio.start()
-
+thread_pub_audio.start()
+time.sleep(1)
 thread_sub_audio = threading.Thread(target=sub_audio, args=(nodes, context))
-if type_of_execution != "-pub ":
-    pass
-    # thread_sub_audio.start()
+thread_sub_audio.start()
 
 thread_pub.join()
 thread_sub.join()
-thread__pub_video.join()
+thread_pub_video.join()
 thread_sub_video.join()
 thread_pub_audio.join()
 thread_sub_audio.join()

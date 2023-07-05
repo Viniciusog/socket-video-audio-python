@@ -20,10 +20,14 @@ def pub_audio(port_pub, zmq_context):
         to_send = b"%s %s" % (b"*", data)
         socket.send(to_send)
 
-def sub_audio(port_sub, zmq_context):
+def sub_audio(ips_to_connect, port_sub, zmq_context):
     socket = zmq_context.socket(zmq.SUB)
-    socket.connect("tcp://192.168.0.123:%s" % port_sub)
-    socket.subscribe("") 
+    """ for ip in ips_to_connect: """
+    for ip in ips_to_connect:
+        print("Conectando em %s" % ip)
+        socket.connect("tcp://%s:%s" % (ip, port_sub))
+    
+    socket.subscribe("*") 
 
     my_audio = pyaudio.PyAudio()
     sample_rate = 44100
@@ -48,7 +52,7 @@ def sub_audio(port_sub, zmq_context):
             print("data")
             print(data)
             cont += 1
-            
+
         stream.write(data)
 
 # Configurações de envio e recebimento
@@ -60,8 +64,10 @@ context = zmq.Context()
 # Chamar as funções de envio e recebimento em threads separadas
 import threading
 
+ips_to_connect = ['192.168.0.123', '192.168.0.124']
+
 pub_thread = threading.Thread(target=pub_audio, args=(port_pub, context))
-sub_thread = threading.Thread(target=sub_audio, args=(port_sub, context))
+sub_thread = threading.Thread(target=sub_audio, args=(ips_to_connect, port_sub, context))
 
 pub_thread.start()
 time.sleep(1)
