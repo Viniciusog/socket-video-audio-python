@@ -39,6 +39,7 @@ def sub_text(ips_to_connect, zmq_context):
         socket.subscribe("*" + ip)
     
     while True:
+        #200.136.196.97
         string = socket.recv()
         topic, messagedata = string.split(b" ", 1)
         print("%s: %s\n" % (topic.decode(), messagedata.decode()))
@@ -53,6 +54,7 @@ def pub_video(port_pub, zmq_context):
 
     while True:
         (grabbed, frame) = camera.read()
+        frame = cv2.resize(frame, (320, 240))
         encoded, buffer = cv2.imencode('.jpg', frame)
         topic = "*" + get_local_ip()
 
