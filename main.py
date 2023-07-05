@@ -107,15 +107,11 @@ def pub_audio(port_pub, zmq_context):
     
     print("D")
     while True:
-        print("E")
         data = stream.read(1024)
-        print("F")
-        to_send = b"%s %s" % (topic.encode(), data)
-        print("F-2")
+        to_send = b"%s %s" % (topic.encode(), data)        
         # print(to_send)
         socket.send(to_send)
         # socket.send_multipart([b"%s" % topic.encode(), data])
-        print("G")
 
 def sub_audio(ips_to_connect, zmq_context):
     print("A1")
@@ -173,26 +169,35 @@ print(nodes)
 # Criando contexto
 context = zmq.Context()
 
-if type_of_execution != "-sub ":
-    thread_pub = threading.Thread(target=pub_text, args=(text_port, context))
+thread_pub = threading.Thread(target=pub_text, args=(text_port, context))
+if type_of_execution != "-sub ":    
     thread_pub.start()
 
-if type_of_execution != "-pub ":
-    thread_sub = threading.Thread(target=sub_text, args=(nodes, context))
+thread_sub = threading.Thread(target=sub_text, args=(nodes, context))
+if type_of_execution != "-pub ":    
     thread_sub.start()
 
+thread__pub_video = threading.Thread(target=pub_video, args=(video_port, context))
 if type_of_execution != "-sub ":
-    thread__pub_video = threading.Thread(target=pub_video, args=(video_port, context))
     thread__pub_video.start()
 
-if type_of_execution != "-pub ":
-    thread_sub_video = threading.Thread(target=sub_video, args=(nodes, context))
+thread_sub_video = threading.Thread(target=sub_video, args=(nodes, context))
+if type_of_execution != "-pub ":    
     thread_sub_video.start()
 
+thread_pub_audio = threading.Thread(target=pub_audio, args=(audio_port, context))
 if type_of_execution != "-sub ":
-    thread_pub_audio = threading.Thread(target=pub_audio, args=(audio_port, context))
     thread_pub_audio.start()
 
+thread_sub_audio = threading.Thread(target=sub_audio, args=(nodes, context))
 if type_of_execution != "-pub ":
-    thread_sub_audio = threading.Thread(target=sub_audio, args=(nodes, context))
-    thread_sub_audio.start()
+    pass
+    # thread_sub_audio.start()
+
+thread_pub.join()
+thread_sub.join()
+thread__pub_video.join()
+thread_sub_video.join()
+thread_pub_audio.join()
+thread_sub_audio.join()
+
