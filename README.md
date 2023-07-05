@@ -18,9 +18,4 @@ Para rodar o arquivo, ouvindo o usuário 192.168.0.114, digite:
 ```
 py main.py -node 192.168.0.114
 ```
-
-Para rodar o arquivo somente com os subs (Apenas ouvir informações, sem publicar), ouvindo os usuários 192.168.0.114 e 192.168.0.115, digite:
-```
-py main.py -sub -node 192.168.0.114 -node 192.168.0.115
-```
 Se quiser ouvir outros usuários, basta adicionar mais ```-node ip_do_usuario``` na hora de executar o arquivo main.py
