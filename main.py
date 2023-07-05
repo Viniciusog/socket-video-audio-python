@@ -91,6 +91,7 @@ def pub_video(port_pub, zmq_context):
     quitting_key_q = 0
 
     while not EXIT:
+        print("while pub video")
         (grabbed, frame) = camera.read()
         frame = cv2.resize(frame, (320, 240))
         encoded, buffer = cv2.imencode('.jpg', frame)
@@ -104,16 +105,21 @@ def pub_video(port_pub, zmq_context):
         cv2.imshow('Webcam', frame)
         if cv2.waitKey(1) & 0xFF == ord('q'):
             quitting_key_q = 1
+            # ? Colocar exit = 1 aqui ??
             quit_socket(socket)
             break
 
     camera.release()
 
     if not quitting_key_q:
+        print("chamando qui_socket externo pub video")
         quit_socket(socket)
 
+    print("quase final pub video")
     cv2.destroyWindow('Webcam')
+    print("quase final pub video 2")
     socket.close()
+    print("quase final pub video 3")
     print("Saindo pub_video")
 
 def sub_video(ips_to_connect, zmq_context):
@@ -128,29 +134,31 @@ def sub_video(ips_to_connect, zmq_context):
         print("Se inscrevendo no tópico quit de vídeo: %s" % (quit_topic))
         socket.subscribe(quit_topic)
 
+    # Se digitarmos q na webcam, iremos executar o quitting, mas o exit aidna será 0.
+    # o exit ainda será 0. Em seguida, quando 
     while True:
-            string = socket.recv()
-            topic, frame_encoded = string.split()
+        string = socket.recv()
+        topic, frame_encoded = string.split()
 
-            # Significa que um determinado usuário está saindo
-            if topic.decode().startswith("quit"):   
-                ip_user_quitting = topic.decode().split("-")[1]
-                print("Usuário %s saiu do canal de vídeo. Removendo janela.." % (ip_user_quitting))
-                cv2.destroyWindow(ip_user_quitting)
-                # Se EXIT = 1, então somos nós mesmos que estamos saindo 
-                if EXIT:
-                    break
-                continue
-
-            img = base64.b64decode(frame_encoded)
-            npimg = np.frombuffer(img, dtype=np.uint8)
-            source = cv2.imdecode(npimg, 1)
-            cv2.imshow(str(topic.decode()[1:]), source)
-            if cv2.waitKey(1) & 0xFF == ord('q'):
-                print("Tecla q Pressionada. Removendo janela da minha Webcam..")
+        # Significa que um determinado usuário está saindo
+        if topic.decode().startswith("quit"):   
+            print("topic começa com quit - sub video")
+            ip_user_quitting = topic.decode().split("-")[1]
+            print("Usuário %s saiu do canal de vídeo. Removendo janela.." % (ip_user_quitting))
+            cv2.destroyWindow(ip_user_quitting)
+            # Se EXIT = 1, então somos nós mesmos que estamos saindo 
+            if EXIT:
                 break
+            continue
 
-    cv2.destroyAllWindows()
+        img = base64.b64decode(frame_encoded)
+        npimg = np.frombuffer(img, dtype=np.uint8)
+        source = cv2.imdecode(npimg, 1)
+        cv2.imshow(str(topic.decode()[1:]), source)
+        if cv2.waitKey(1) & 0xFF == ord('q'):
+            print("Tecla q Pressionada. Removendo janela da minha Webcam..")
+            break
+
     socket.close()
     print("Saindo sub_video")
         
