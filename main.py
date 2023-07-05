@@ -77,37 +77,48 @@ def sub_video(ips_to_connect, zmq_context):
         socket.subscribe(topic)
 
     while True:
-        try:
             string = socket.recv()
             topic, frame_encoded = string.split()
             img = base64.b64decode(frame_encoded)
             npimg = np.frombuffer(img, dtype=np.uint8)
             source = cv2.imdecode(npimg, 1)
             cv2.imshow(str(topic.decode()), source)
-            cv2.waitKey(1)
-        except KeyboardInterrupt:
-            cv2.destroyWindow()
-            break
+            if cv2.waitKey(1) & 0xFF == ord('q'):
+                break
+        
 
 def pub_audio(port_pub, zmq_context):
     socket = zmq_context.socket(zmq.PUB)
     print("Conectando áudio na porta: %d" % (port_pub))
     socket.bind("tcp://*:%s" % port_pub)
+    print("A")
 
     topic = "*" + get_local_ip()
+    print("B")
 
     my_audio = pyaudio.PyAudio()
     # 44100 Hz é a taxa padrão de áudio
     sample_rate = 44100
     format = pyaudio.paInt16
     channels = 2
+    print("C")
 
     stream = my_audio.open(format=format, channels=channels, rate=sample_rate, output=True, input=True, frames_per_buffer=1024)
+    
+    print("D")
     while True:
+        print("E")
         data = stream.read(1024)
-        socket.send_multipart([b"%s" % topic.encode(), data])
+        print("F")
+        to_send = b"%s %s" % (topic.encode(), data)
+        print("F-2")
+        # print(to_send)
+        socket.send(to_send)
+        # socket.send_multipart([b"%s" % topic.encode(), data])
+        print("G")
 
 def sub_audio(ips_to_connect, zmq_context):
+    print("A1")
     socket = zmq_context.socket(zmq.SUB)
 
     my_audio = pyaudio.PyAudio()
@@ -115,19 +126,30 @@ def sub_audio(ips_to_connect, zmq_context):
     sample_rate = 44100
     format = pyaudio.paInt16
     channels = 2
+    print("A2")
 
     stream = my_audio.open(format=format, channels=channels, rate=sample_rate, output=True, frames_per_buffer=1024)
+    print("A3")
     for ip in ips_to_connect:
         socket.connect("tcp://%s:%d" % (ip, audio_port))        
         topic = "*" + ip
         print("Se inscrevendo no tópico de áudio: %s" % (topic))
         socket.subscribe(topic) 
 
+    print("A4")
+
+    cont = 0
     while True:
-        topic, data = socket.recv_multipart()  # Receber as partes do socket
-        print("Áudio recebido de %s" % (topic.decode()))
-        stream.write(data)
-    
+        print("A5")
+        string = socket.recv()
+        print("A5-2")
+
+        if cont == 0:
+            print("string")
+            print(string)
+        
+        topic, audio_data = string.split(b" ", 1)
+        stream.write(audio_data)
 
 strArgv = ""
 for element in sys.argv[1:]:
