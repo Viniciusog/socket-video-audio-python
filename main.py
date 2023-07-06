@@ -33,11 +33,11 @@ def quit_socket(socket):
     socket.send(to_send)
 
 def pub_text(port_pub, zmq_context):
-    socket = zmq_context.socket(zmq.PUB)
-    print("Conectando pub_text na porta %s\n" % port_pub)
+    socket = zmq_context.socket(zmq.PUB)    
     socket.bind("tcp://*:%s" % port_pub)
     
     topic = "*" + get_local_ip()
+    print("|---------------Chat---------------|")
     while True:
         message = input()
         if message == "#quit":
@@ -58,11 +58,7 @@ def sub_text(ips_to_connect, zmq_context):
         socket.subscribe("quit-" + ip)
     
     while True: 
-        #! tenho que receber uma mensagem de quit e avisar no chat que o usuário está saindo
-        #! while tem que ser while True e depois de eu receber a mensagem de quit, tenho
-        #! que verificar se o meu EXIT está sendo 1, porque se estiver, tenho que dar um break para sair do while
         #200.136.196.97
-        print("Executando sub text")
         string = socket.recv()
         topic, messagedata = string.split(b" ", 1)
 
@@ -83,7 +79,6 @@ def sub_text(ips_to_connect, zmq_context):
 def pub_video(port_pub, zmq_context):
     socket = zmq_context.socket(zmq.PUB)
 
-    print("Conectando pub_video na porta %s\n" % port_pub)
     socket.bind("tcp://*:%s" % port_pub)
 
     camera = cv2.VideoCapture(0)
@@ -111,14 +106,10 @@ def pub_video(port_pub, zmq_context):
     camera.release()
 
     if not quitting_key_q:
-        print("chamando qui_socket externo pub video")
         quit_socket(socket)
 
-    print("quase final pub video")
     cv2.destroyWindow('Webcam')
-    print("quase final pub video 2")
     socket.close()
-    print("quase final pub video 3")
     print("Saindo pub_video")
 
 def sub_video(ips_to_connect, zmq_context):
@@ -127,10 +118,8 @@ def sub_video(ips_to_connect, zmq_context):
     for ip in ips_to_connect:
         socket.connect("tcp://%s:%d" % (ip, video_port))
         topic = "*" + ip
-        print("Se inscrevendo no tópico de vídeo: %s" % (topic))
         socket.subscribe(topic)
         quit_topic = "quit-" + ip
-        print("Se inscrevendo no tópico quit de vídeo: %s" % (quit_topic))
         socket.subscribe(quit_topic)
 
     # Se digitarmos q na webcam, iremos executar o quitting, mas o exit aidna será 0.
@@ -173,7 +162,6 @@ def pub_audio(port_pub, zmq_context):
 
     stream = my_audio.open(format=format, channels=channels, rate=sample_rate, input=True, frames_per_buffer=frames_per_buffer)
 
-    print("Enviando áudio...")
     while not EXIT: 
         data = stream.read(frames_per_buffer)
         to_send = b"%s %s" % (b"*", data)
@@ -185,9 +173,7 @@ def pub_audio(port_pub, zmq_context):
 
 def sub_audio(ips_to_connect, zmq_context):
     socket = zmq_context.socket(zmq.SUB)
-    """ for ip in ips_to_connect: """
     for ip in ips_to_connect:
-        print("Conectando em %s" % ip)
         socket.connect("tcp://%s:%s" % (ip, audio_port))
         socket.subscribe("quit-" + ip)
     
@@ -201,13 +187,9 @@ def sub_audio(ips_to_connect, zmq_context):
 
     stream = my_audio.open(format=format, channels=channels, rate=sample_rate, output=True, frames_per_buffer=frames_per_buffer)
 
-    print("Recebendo áudio...")
     cont = 0
     while True:
         string = socket.recv()
-        if cont == 0:
-            print(string)
-            cont += 1
 
         topic, data = string.split(b' ', 1)
 
@@ -224,22 +206,19 @@ def sub_audio(ips_to_connect, zmq_context):
     socket.close()
     print("Saindo sub_audio")
 
+# Pegando os parâmetros quando executar o arquivo
 strArgv = ""
 for element in sys.argv[1:]:
     strArgv += str(element) + " "
 strArgv = strArgv.strip()
 
-print(":%s:" % (strArgv))
+#print(":%s:" % (strArgv))
 
 nodes = strArgv.split("-node ")
-print("nodes")
-print(nodes)
+print("Nós para conectar:")
 for i in range(1, len(nodes)-1):
     nodes[i] = nodes[i].strip()
 
-# Se tiver -sub, os pubs não vão executar
-type_of_execution = nodes[0] 
-print("Tipo de execução:%s:" % (type_of_execution))
 nodes = nodes[1:]
 print(nodes)
 
