@@ -1,4 +1,12 @@
-# digite pip install -r requirements.txt para instalar as dependências
+# SISTEMAS DISTRIBUÍDOS
+# Grupo D
+# Membros:
+# Guilherme Tanaka Carloto
+# Vinicius de Oliveira Guimaraes
+# Thiago Martins
+# Arthur Eugenio Silverio
+
+# Digite pip install -r requirements.txt para instalar as dependências
 import sys
 import zmq
 import time
