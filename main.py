@@ -91,7 +91,6 @@ def pub_video(port_pub, zmq_context):
     quitting_key_q = 0
 
     while not EXIT:
-        print("while pub video")
         (grabbed, frame) = camera.read()
         frame = cv2.resize(frame, (320, 240))
         encoded, buffer = cv2.imencode('.jpg', frame)
