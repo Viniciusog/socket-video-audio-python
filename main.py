@@ -7,6 +7,7 @@
 # Arthur Eugenio Silverio
 
 # Descrição de como executar o programa está no github: 
+# https://github.com/Viniciusog/socket-video-python
 
 # Digite pip install -r requirements.txt para instalar as dependências
 import sys
