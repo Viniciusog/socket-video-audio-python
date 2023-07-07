@@ -1,5 +1,13 @@
 # socket-video-python
 
+Membros:
+
+Vinicius de Oliveira Guimarães <br>
+Guilherme Tanaka Carloto <br>
+Thiago Martins <br>
+Arthur Eugenio Silverio <br>
+
+## Descrição
 As portas de texto, vídeo e áudio foram padronizadas. <br>
 Porta de texto = 6000. <br>
 Porta de vídeo = 6001. <br>
