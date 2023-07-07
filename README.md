@@ -33,7 +33,7 @@ Se quiser ouvir outros usuários, basta adicionar mais ```-node ip_do_usuario```
 
 ### Fazer usuário sair/parar de publicar dados
 
-Quando estiver rodando um usuário e quiser fazer ele sair/parar de publicar dados, digite no chat <br>
+Quando estiver rodando um usuário e for fazer ele sair/parar de publicar dados, deve digitar no chat <br>
 o seguinte comando especial que criamos: ```#quit```
 
 Com isso, o seu usuário irá parar todos os pubs, notificando todos os outros usuários que estavam escutando ele.
