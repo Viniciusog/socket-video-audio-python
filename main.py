@@ -6,13 +6,13 @@
 # Thiago Martins
 # Arthur Eugenio Silverio
 
+# Descrição de como executar o programa está no github: 
+
 # Digite pip install -r requirements.txt para instalar as dependências
 import sys
 import zmq
 import time
-import random
 import threading
-import tkinter
 import cv2
 import base64
 import numpy as np
