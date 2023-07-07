@@ -92,7 +92,7 @@ def sub_text(ips_to_connect, zmq_context):
                 break
             continue
 
-        # Imprimi no terminal dizendo que recebeu a mensagem de um usuário (mostra o ip do usuário)
+        # Imprimir no terminal dizendo que recebeu a mensagem de um usuário (mostra o ip do usuário)
         print("%s: %s\n" % (topic.decode(), messagedata.decode()))
 
     print("Saindo sub_text")
