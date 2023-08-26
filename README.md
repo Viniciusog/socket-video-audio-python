@@ -1,11 +1,6 @@
 # socket-video-python
 
-Membros:
-
 Vinicius de Oliveira Guimarães <br>
-Guilherme Tanaka Carloto <br>
-Thiago Martins <br>
-Arthur Eugenio Silverio <br>
 
 ## Descrição
 As portas de texto, vídeo e áudio foram padronizadas. <br>
