@@ -1,10 +1,6 @@
 # SISTEMAS DISTRIBUÍDOS
 # Grupo D
-# Membros:
-# Guilherme Tanaka Carloto
 # Vinicius de Oliveira Guimaraes
-# Thiago Martins
-# Arthur Eugenio Silverio
 
 # Descrição de como executar o programa está no github: 
 # https://github.com/Viniciusog/socket-video-python
